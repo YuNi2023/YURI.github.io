@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>広告クリックでリンク表示</title>
+  <title>広告クリック後リンク表示</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -41,7 +41,7 @@
   </style>
 </head>
 <body>
-  <h1>広告クリックでリンク表示</h1>
+  <h1>広告クリック後リンク表示</h1>
   <p>下の広告をクリックし、広告ページで60秒以上経過してからこちらのページに戻るとリンクが表示されます。</p>
 
   <!-- 広告エリア -->
@@ -58,9 +58,9 @@
     // 必要な離脱時間（ミリ秒）：60秒
     const REQUIRED_LEAVE_TIME = 60 * 1000;
 
-    // 表示したいリンクをBase64エンコードしておく
-    // 「https://gofile.io/d/qCN9ya」をエンコードした結果
-    const encodedLink = "aHR0cHM6Ly9nb2ZpbGUuaW8vZC9xQ04OXlh";
+    // 表示したいリンク先をBase64エンコードしておく
+    // ここでは「https://gofile.io/d/qCN9ya」をエンコードした結果を使用
+    const encodedLink = "aHR0cHM6Ly9nb2ZpbGUuaW8vZC9xQ04OeUE=";
 
     // ページが非表示になった（ユーザーがタブを離れた）時刻を記録
     let hiddenTime = null;
@@ -87,11 +87,12 @@
       const linkContainer = document.getElementById("linkContainer");
       if (linkContainer.children.length > 0) return;
 
+      // Base64をデコードして実際のURLを取得
       const decodedLink = atob(encodedLink);
       const anchor = document.createElement("a");
       anchor.href = decodedLink;
       anchor.target = "_blank";
-      // ボタンテキストを変更
+      // ボタンテキストを「ダウンロードページへ移動する」に変更
       anchor.textContent = "ダウンロードページへ移動する";
 
       linkContainer.appendChild(anchor);
