@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>広告クリックでリンク表示サンプル</title>
+  <style>
+    body {
+      text-align: center;
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+      padding: 20px;
+    }
+    #ad {
+      margin: 20px auto;
+      width: 300px;
+      cursor: pointer;
+      border: 2px solid #ccc;
+      padding: 10px;
+      background-color: #fff;
+    }
+    #targetLink {
+      display: none;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>広告クリックでリンク表示サンプル</h1>
+  <p>以下の広告をクリックすると、目的のサイトへのリンクが表示されます。</p>
+  
+  <!-- 広告エリア（ここでは画像を例示） -->
+  <div id="ad">
+    <img src="your-ad-image.jpg" alt="広告画像" width="100%">
+  </div>
+  
+  <!-- クリック後に表示されるリンク -->
+  <div id="targetLink">
+    <a href="https://target-website.com" target="_blank">目的のサイトへ移動する</a>
+  </div>
+  
+  <script>
+    // 広告エリアがクリックされたときにリンクを表示
+    document.getElementById('ad').addEventListener('click', function(){
+      document.getElementById('targetLink').style.display = 'block';
+    });
+  </script>
+</body>
+</html>
