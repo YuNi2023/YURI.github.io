@@ -2,11 +2,11 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>広告クリックでリンク表示サンプル</title>
+  <title>広告クリック → 待機 → カウントダウンでリンク表示</title>
   <style>
     body {
-      text-align: center;
       font-family: Arial, sans-serif;
+      text-align: center;
       background-color: #f0f0f0;
       margin: 0;
       padding: 20px;
@@ -15,18 +15,20 @@
       margin-bottom: 20px;
     }
     #adContainer {
-      margin: 20px auto;
-      width: 300px;
+      display: inline-block;
       border: 2px solid #ccc;
-      padding: 10px;
       background-color: #fff;
-      cursor: pointer;
+      padding: 10px;
+      cursor: pointer; /* 広告周りのクリックをしやすくする */
     }
-    #linkContainer {
+    #countdownContainer, #linkContainer {
       margin-top: 30px;
-      display: none; /* 初期は非表示 */
+      display: none;
     }
-    /* リンクの見た目を少し調整 */
+    #countdownContainer p {
+      font-size: 1.2em;
+    }
+    /* リンクボタンのスタイル */
     #linkContainer a {
       display: inline-block;
       padding: 10px 20px;
@@ -41,43 +43,81 @@
   </style>
 </head>
 <body>
-  <h1>広告クリックでリンク表示サンプル</h1>
-  <p>以下の広告エリアをクリックすると、隠していたリンクが表示されます。</p>
+  <h1>広告クリック → 60秒待機 → リンク解放</h1>
+  <p>以下の広告をクリックして、60秒以上経過してから戻るとカウントダウンが始まり、終了後にリンクが表示されます。</p>
 
+  <!-- 広告エリア -->
   <div id="adContainer">
-    <!-- admax: 忍者AdMaxで発行された広告タグをそのまま貼り付け -->
-    <script src="https://adm.shinobi.jp/s/1c98a05e5112d632eea60695e4420462"></script>
+    <!-- admax: 忍者AdMaxで発行された広告タグをそのまま貼り付けてください -->
+    <script src="https://adm.shinobi.jp/s/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"></script>
     <!-- /admax -->
   </div>
 
-  <!-- クリック後に表示したいリンクを格納する要素 -->
-  <div id="linkContainer"></div>
+  <!-- カウントダウンを表示する領域 -->
+  <div id="countdownContainer">
+    <p>カウントダウン中... 残り <span id="countdownValue"></span> 秒</p>
+  </div>
+
+  <!-- リンクを表示する領域 -->
+  <div id="linkContainer">
+    <!-- ここにリンクが表示される -->
+    <a href="https://example.com" target="_blank">目的のサイトへ移動する</a>
+  </div>
 
   <script>
-    // ▼ Base64エンコードしたリンクを用意
-    //    例: "https://example.com" → "aHR0cHM6Ly9leGFtcGxlLmNvbQ=="
-    const encodedLink = "aHR0cHM6Ly9leGFtcGxlLmNvbQ=="; // 実際のリンクに合わせて変更
+    // ▼ 必要な設定値
+    const REQUIRED_TIME_MS = 60 * 1000; // 60秒（ミリ秒単位）
+    const COUNTDOWN_TIME = 10;         // カウントダウン秒数（例：10秒）
 
-    // ▼ 広告コンテナをクリックしたときの処理
+    // 広告エリアをクリックしたら、現在時刻をlocalStorageに記録
     document.getElementById('adContainer').addEventListener('click', function() {
-      // 既にリンクが表示されていたら再表示しない（必要に応じてフラグ管理）
-      if (document.getElementById('linkContainer').children.length > 0) {
+      localStorage.setItem('adClickTime', Date.now());
+      alert("広告をクリックしました。\nこのまま広告ページを閲覧し、60秒以上経過してから戻ってきてください。");
+    });
+
+    // ページ読込完了後にチェック
+    window.addEventListener('DOMContentLoaded', function() {
+      const lastClickTime = localStorage.getItem('adClickTime');
+      if (!lastClickTime) {
+        // まだ広告をクリックしていない場合
+        console.log("広告がクリックされていません。");
         return;
       }
 
-      // Base64をデコードして実際のURLを得る
-      const decodedLink = atob(encodedLink);
+      // 60秒経過したかどうかを確認
+      const now = Date.now();
+      const diff = now - parseInt(lastClickTime, 10);
 
-      // <a>要素を作成し、デコードしたURLをセット
-      const anchor = document.createElement('a');
-      anchor.href = decodedLink;
-      anchor.target = "_blank";
-      anchor.textContent = "目的のサイトへ移動する";
-
-      // linkContainerに追加して表示
-      document.getElementById('linkContainer').appendChild(anchor);
-      document.getElementById('linkContainer').style.display = "block";
+      if (diff >= REQUIRED_TIME_MS) {
+        // 60秒以上経過していれば、カウントダウン開始
+        startCountdown(COUNTDOWN_TIME);
+      } else {
+        // まだ時間が足りない場合
+        alert("まだ60秒経過していません。広告ページをもう少し見てから戻ってきてください。");
+      }
     });
+
+    // カウントダウンを開始し、終了後にリンクを表示する
+    function startCountdown(seconds) {
+      const countdownContainer = document.getElementById('countdownContainer');
+      const countdownValue = document.getElementById('countdownValue');
+      const linkContainer = document.getElementById('linkContainer');
+
+      countdownContainer.style.display = 'block';
+      let timeLeft = seconds;
+      countdownValue.textContent = timeLeft;
+
+      const intervalId = setInterval(() => {
+        timeLeft--;
+        countdownValue.textContent = timeLeft;
+
+        if (timeLeft <= 0) {
+          clearInterval(intervalId);
+          countdownContainer.style.display = 'none';
+          linkContainer.style.display = 'block';
+        }
+      }, 1000);
+    }
   </script>
 </body>
 </html>
