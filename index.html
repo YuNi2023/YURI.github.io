@@ -1,1 +1,109 @@
-https://YuNi2023.github.io/
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>ページ離脱60秒でリンク表示</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #f0f0f0;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    /* 広告エリア */
+    #adContainer {
+      display: inline-block;
+      border: 2px solid #ccc;
+      background-color: #fff;
+      padding: 10px;
+      cursor: pointer;
+    }
+    /* リンク表示エリア（初期は非表示） */
+    #linkContainer {
+      margin-top: 30px;
+      display: none;
+    }
+    #linkContainer a {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #007BFF;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 4px;
+    }
+    #linkContainer a:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <h1>ページ離脱60秒でリンク表示</h1>
+  <p>下の広告をクリックし、別タブなどで広告ページをご覧いただいた後、60秒以上経過して元のページに戻るとリンクが表示されます。</p>
+
+  <!-- 広告エリア -->
+  <div id="adContainer">
+    <!-- admax -->
+    <script src="https://adm.shinobi.jp/s/1c98a05e5112d632eea60695e4420462"></script>
+    <!-- admax -->
+  </div>
+
+  <!-- リンク表示エリア -->
+  <div id="linkContainer"></div>
+
+  <script>
+    // 必要な離脱時間（ミリ秒）を60秒に設定
+    const REQUIRED_LEAVE_TIME = 60 * 1000; // 60,000ms = 60秒
+
+    // 表示したいリンクをBase64エンコードしておく（"https://gofile.io/d/rYLkNb" の例）
+    const encodedLink = "aHR0cHM6Ly9nb2ZpbGUuaW8vZC9yWUxrTmI=";
+
+    // ページが非表示になった（ユーザーがタブを離れた）時刻を格納する変数
+    let hiddenTime = null;
+
+    // ページの表示状態変化を監視
+    document.addEventListener("visibilitychange", function() {
+      if (document.hidden) {
+        // ページが非表示になったときの時刻を記録
+        hiddenTime = Date.now();
+      } else {
+        // ページが再表示されたとき（ユーザーが戻ってきたとき）
+        if (hiddenTime !== null) {
+          const elapsed = Date.now() - hiddenTime;
+          if (elapsed >= REQUIRED_LEAVE_TIME) {
+            // 60秒以上経過していればリンクを表示
+            showLink();
+          } else {
+            alert("まだ60秒経過していません。もう少し広告をご覧いただいてから戻ってきてください。");
+          }
+          // hiddenTimeをリセット
+          hiddenTime = null;
+        }
+      }
+    });
+
+    // リンク表示のための関数
+    function showLink() {
+      const linkContainer = document.getElementById("linkContainer");
+      // 既にリンクが表示されている場合は何もしない
+      if (linkContainer.children.length > 0) return;
+
+      // Base64をデコードして実際のURLを取得
+      const decodedLink = atob(encodedLink);
+
+      // <a> 要素を生成してリンクを設定
+      const anchor = document.createElement("a");
+      anchor.href = decodedLink;
+      anchor.target = "_blank";
+      anchor.textContent = "目的のサイトへ移動する";
+
+      // リンクをコンテナに追加し、表示する
+      linkContainer.appendChild(anchor);
+      linkContainer.style.display = "block";
+    }
+  </script>
+</body>
+</html>
