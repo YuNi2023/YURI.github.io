@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>広告クリック → 待機 → カウントダウンでリンク表示</title>
+  <title>広告クリック → 10秒待機 → リンク表示</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -21,14 +21,10 @@
       padding: 10px;
       cursor: pointer; /* 広告周りのクリックをしやすくする */
     }
-    #countdownContainer, #linkContainer {
+    #linkContainer {
       margin-top: 30px;
       display: none;
     }
-    #countdownContainer p {
-      font-size: 1.2em;
-    }
-    /* リンクボタンのスタイル */
     #linkContainer a {
       display: inline-block;
       padding: 10px 20px;
@@ -43,82 +39,72 @@
   </style>
 </head>
 <body>
-  <h1>広告クリック → 60秒待機 → リンク解放</h1>
-  <p>以下の広告をクリックして、60秒以上経過してから戻るとカウントダウンが始まり、終了後にリンクが表示されます。</p>
+  <h1>広告クリック → 10秒待機 → リンク表示</h1>
+  <p>以下の広告をクリックして、10秒以上経過してから戻ってくるとリンクが表示されます。</p>
 
   <!-- 広告エリア -->
   <div id="adContainer">
-    <!-- admax: 忍者AdMaxで発行された広告タグをそのまま貼り付けてください -->
-    <script src="<!-- admax -->
-<script src="https://adm.shinobi.jp/s/1c98a05e5112d632eea60695e4420462"></script>
-<!-- admax -->"></script>
+    <!-- admax -->
+    <script src="https://adm.shinobi.jp/s/1c98a05e5112d632eea60695e4420462"></script>
     <!-- /admax -->
   </div>
 
-  <!-- カウントダウンを表示する領域 -->
-  <div id="countdownContainer">
-    <p>カウントダウン中... 残り <span id="countdownValue"></span> 秒</p>
-  </div>
-
   <!-- リンクを表示する領域 -->
-  <div id="linkContainer">
-    <!-- ここにリンクが表示される -->
-    <a href="https://example.com" target="_blank">目的のサイトへ移動する</a>
-  </div>
+  <div id="linkContainer"></div>
 
   <script>
-    // ▼ 必要な設定値
-    const REQUIRED_TIME_MS = 60 * 1000; // 60秒（ミリ秒単位）
-    const COUNTDOWN_TIME = 10;         // カウントダウン秒数（例：10秒）
+    // 必要な視聴時間(ミリ秒)を10秒に設定
+    const REQUIRED_TIME_MS = 10 * 1000; // 10秒
 
-    // 広告エリアをクリックしたら、現在時刻をlocalStorageに記録
+    // 表示したいURLをBase64エンコードした文字列
+    // 例: btoa("https://gofile.io/d/rYLkNb") の結果
+    const encodedLink = "aHR0cHM6Ly9nb2ZpbGUuaW8vZC9yWUxrTmI=";
+
+    // 広告をクリックした時刻を記録
     document.getElementById('adContainer').addEventListener('click', function() {
       localStorage.setItem('adClickTime', Date.now());
-      alert("広告をクリックしました。\nこのまま広告ページを閲覧し、60秒以上経過してから戻ってきてください。");
+      alert("広告をクリックしました。\nこのまま広告ページを10秒間ほど閲覧してから戻ってきてください。");
     });
 
-    // ページ読込完了後にチェック
+    // ページ読み込み完了時に、広告クリックからの経過時間をチェック
     window.addEventListener('DOMContentLoaded', function() {
       const lastClickTime = localStorage.getItem('adClickTime');
       if (!lastClickTime) {
-        // まだ広告をクリックしていない場合
-        console.log("広告がクリックされていません。");
+        // まだ広告がクリックされていない場合は何もしない
         return;
       }
 
-      // 60秒経過したかどうかを確認
+      // 現在時刻との時間差を計算
       const now = Date.now();
       const diff = now - parseInt(lastClickTime, 10);
 
       if (diff >= REQUIRED_TIME_MS) {
-        // 60秒以上経過していれば、カウントダウン開始
-        startCountdown(COUNTDOWN_TIME);
+        // 10秒以上経過していればリンクを表示
+        showLink();
       } else {
-        // まだ時間が足りない場合
-        alert("まだ60秒経過していません。広告ページをもう少し見てから戻ってきてください。");
+        alert("まだ10秒経過していません。広告ページをもう少し見てから戻ってきてください。");
       }
     });
 
-    // カウントダウンを開始し、終了後にリンクを表示する
-    function startCountdown(seconds) {
-      const countdownContainer = document.getElementById('countdownContainer');
-      const countdownValue = document.getElementById('countdownValue');
+    // リンクを表示する処理
+    function showLink() {
       const linkContainer = document.getElementById('linkContainer');
 
-      countdownContainer.style.display = 'block';
-      let timeLeft = seconds;
-      countdownValue.textContent = timeLeft;
+      // すでにリンクが表示されている場合は何もしない
+      if (linkContainer.children.length > 0) return;
 
-      const intervalId = setInterval(() => {
-        timeLeft--;
-        countdownValue.textContent = timeLeft;
+      // Base64デコードしてURLを取得
+      const decodedLink = atob(encodedLink);
 
-        if (timeLeft <= 0) {
-          clearInterval(intervalId);
-          countdownContainer.style.display = 'none';
-          linkContainer.style.display = 'block';
-        }
-      }, 1000);
+      // <a>要素を生成
+      const anchor = document.createElement('a');
+      anchor.href = decodedLink;
+      anchor.target = "_blank";
+      anchor.textContent = "目的のサイトへ移動する";
+
+      // コンテナに追加して表示
+      linkContainer.appendChild(anchor);
+      linkContainer.style.display = "block";
     }
   </script>
 </body>
