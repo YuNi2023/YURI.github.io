@@ -8,40 +8,75 @@
       text-align: center;
       font-family: Arial, sans-serif;
       background-color: #f0f0f0;
+      margin: 0;
       padding: 20px;
     }
-    #ad {
+    h1 {
+      margin-bottom: 20px;
+    }
+    #adContainer {
       margin: 20px auto;
       width: 300px;
-      cursor: pointer;
       border: 2px solid #ccc;
       padding: 10px;
       background-color: #fff;
+      cursor: pointer;
     }
-    #targetLink {
-      display: none;
-      margin-top: 20px;
+    #linkContainer {
+      margin-top: 30px;
+      display: none; /* 初期は非表示 */
+    }
+    /* リンクの見た目を少し調整 */
+    #linkContainer a {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #007BFF;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 4px;
+    }
+    #linkContainer a:hover {
+      background-color: #0056b3;
     }
   </style>
 </head>
 <body>
   <h1>広告クリックでリンク表示サンプル</h1>
-  <p>以下の広告をクリックすると、目的のサイトへのリンクが表示されます。</p>
-  
-  <!-- 広告エリア（ここでは画像を例示） -->
-  <div id="ad">
-    <img src="your-ad-image.jpg" alt="広告画像" width="100%">
+  <p>以下の広告エリアをクリックすると、隠していたリンクが表示されます。</p>
+
+  <div id="adContainer">
+    <!-- admax: 忍者AdMaxで発行された広告タグをそのまま貼り付け -->
+    <script src="https://adm.shinobi.jp/s/1c98a05e5112d632eea60695e4420462"></script>
+    <!-- /admax -->
   </div>
-  
-  <!-- クリック後に表示されるリンク -->
-  <div id="targetLink">
-    <a href="https://target-website.com" target="_blank">目的のサイトへ移動する</a>
-  </div>
-  
+
+  <!-- クリック後に表示したいリンクを格納する要素 -->
+  <div id="linkContainer"></div>
+
   <script>
-    // 広告エリアがクリックされたときにリンクを表示
-    document.getElementById('ad').addEventListener('click', function(){
-      document.getElementById('targetLink').style.display = 'block';
+    // ▼ Base64エンコードしたリンクを用意
+    //    例: "https://example.com" → "aHR0cHM6Ly9leGFtcGxlLmNvbQ=="
+    const encodedLink = "aHR0cHM6Ly9leGFtcGxlLmNvbQ=="; // 実際のリンクに合わせて変更
+
+    // ▼ 広告コンテナをクリックしたときの処理
+    document.getElementById('adContainer').addEventListener('click', function() {
+      // 既にリンクが表示されていたら再表示しない（必要に応じてフラグ管理）
+      if (document.getElementById('linkContainer').children.length > 0) {
+        return;
+      }
+
+      // Base64をデコードして実際のURLを得る
+      const decodedLink = atob(encodedLink);
+
+      // <a>要素を作成し、デコードしたURLをセット
+      const anchor = document.createElement('a');
+      anchor.href = decodedLink;
+      anchor.target = "_blank";
+      anchor.textContent = "目的のサイトへ移動する";
+
+      // linkContainerに追加して表示
+      document.getElementById('linkContainer').appendChild(anchor);
+      document.getElementById('linkContainer').style.display = "block";
     });
   </script>
 </body>
